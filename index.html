@@ -79,6 +79,184 @@
             transform: translateX(0);
         }
 
+        /* ---------- ENERGY COMPARISON WIDGET ---------- */
+        .energy-comparison-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .energy-card {
+            background: rgba(12, 12, 18, 0.75);
+            border-radius: 16px;
+            padding: 22px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .energy-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .fuel-card {
+            border-left: 4px solid #ef4444;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.08);
+        }
+
+        .fuel-icon-bg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ev-card {
+            border-left: 4px solid #00e5ff;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 15px;
+        }
+
+        .card-titles {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-label {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .price-title {
+            font-size: 1.6rem;
+            font-family: 'Syncopate', sans-serif;
+            margin: 2px 0 0 0;
+            font-weight: 700;
+        }
+
+        .price-title small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #aaa;
+        }
+
+        .red-text { color: #ef4444; }
+        .cyan-text { color: #00e5ff; }
+
+        .ev-circle-loader {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: rgba(0, 229, 255, 0.15);
+            stroke-width: 4;
+        }
+
+        .circle-spin {
+            fill: none;
+            stroke: #00e5ff;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 125;
+            stroke-dashoffset: 40;
+            animation: spinCircle 2s linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes spinCircle {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .bolt-icon {
+            position: absolute;
+            filter: drop-shadow(0 0 6px #00e5ff);
+            animation: pulseBolt 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseBolt {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.15); opacity: 1; }
+        }
+
+        .graph-wrapper {
+            position: relative;
+            width: 100%;
+            height: 65px;
+        }
+
+        .graph-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .graph-line {
+            fill: none;
+            stroke-width: 3;
+            stroke-dasharray: 300;
+            animation: moveGraph 3s linear infinite;
+        }
+
+        .line-red {
+            stroke: #ef4444;
+            filter: drop-shadow(0 2px 8px rgba(239, 68, 68, 0.5));
+        }
+
+        .line-cyan {
+            stroke: #00e5ff;
+            filter: drop-shadow(0 2px 8px rgba(0, 229, 255, 0.6));
+        }
+
+        @keyframes moveGraph {
+            0% { stroke-dashoffset: 300; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .trend-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .red-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .cyan-badge {
+            background: rgba(0, 229, 255, 0.15);
+            color: #00e5ff;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
+
         /* ---------- EVENT MAP SECTION ---------- */
         #event-route {
             padding: 100px 5vw;
@@ -673,7 +851,7 @@
         }
 
         #performance .parallax-bg { 
-            background-image: url('https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2000&auto=format&fit=crop'); 
+            background-image: url('https://www.bmw.ro/content/dam/bmw/common/all-models/3-series/sedan/2026/images/na0_opengraph-image.jpg'); 
         }
         #performance .overlay {
             background: linear-gradient(270deg, var(--deep-black) 45%, transparent);
@@ -839,42 +1017,43 @@
         .footer-info p { margin: 5px 0; }
         .footer-legal { text-align: left; margin-top: auto; }
 
-        /* ---------- CONFIGURATOR MODAL ---------- */
+        /* ---------- CONFIGURATOR MODAL PREMIUM ---------- */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            inset: 0;
+            background: rgba(2, 2, 5, 0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             z-index: 10000;
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
+            visibility: hidden;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
         }
 
         .modal-overlay.active {
             opacity: 1;
-            pointer-events: all;
+            visibility: visible;
         }
 
         .modal-content {
-            background: #0a0a0f;
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh;
-            border-radius: 12px;
-            border: 1px solid rgba(0, 229, 255, 0.2);
+            background: linear-gradient(145deg, #0a0a0f, #050507);
+            width: 95%;
+            max-width: 1000px;
+            max-height: 85vh;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 229, 255, 0.15);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            transform: translateY(20px);
-            transition: transform 0.4s ease;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+            transform: scale(0.95) translateY(20px);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .modal-overlay.active .modal-content {
-            transform: translateY(0);
+            transform: scale(1) translateY(0);
         }
 
         .modal-header {
@@ -934,6 +1113,7 @@
             gap: 15px;
             transition: all 0.3s ease;
             position: relative;
+            overflow: hidden;
         }
 
         .option-card:hover {
@@ -948,6 +1128,14 @@
         .option-card:has(input:checked) {
             border-color: var(--electric-cyan);
             background: rgba(0, 229, 255, 0.05);
+        }
+
+        .option-card:has(input:checked)::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top right, rgba(0, 229, 255, 0.2), transparent 70%);
+            pointer-events: none;
         }
 
         .color-swatch {
@@ -1419,7 +1607,74 @@
                 </div>
             </div>
             <div class="reveal-right">
-                <!-- Empty for grid layout, background handles the visual -->
+                <div class="energy-comparison-container">
+                    <div class="energy-card fuel-card">
+                        <div class="card-header">
+                            <div class="icon-box fuel-icon-bg">
+                                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/>
+                                    <path d="M15 9h2a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9l-3-3"/>
+                                    <path d="M3 22h12"/>
+                                    <rect x="6" y="6" width="6" height="4" rx="1" fill="#1a0505"/>
+                                </svg>
+                            </div>
+                            <div class="card-titles">
+                                <span class="card-label">Combustibil Fosil</span>
+                                <h4 class="price-title red-text">9.20 <small>RON/L</small></h4>
+                            </div>
+                        </div>
+
+                        <div class="graph-wrapper">
+                            <svg class="graph-svg" viewBox="0 0 200 60">
+                                <defs>
+                                    <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#ef4444" stop-opacity="0.4"/>
+                                        <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                                <path class="graph-area" fill="url(#redGrad)" d="M0,50 Q40,45 80,35 T160,15 T200,5 L200,60 L0,60 Z"/>
+                                <path class="graph-line line-red" d="M0,50 Q40,45 80,35 T160,15 T200,5"/>
+                            </svg>
+                            <div class="trend-indicator red-badge">
+                                <span>▲ +18.4%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="energy-card ev-card">
+                        <div class="card-header">
+                            <div class="ev-circle-loader">
+                                <svg viewBox="0 0 50 50" width="44" height="44">
+                                    <circle class="circle-bg" cx="25" cy="25" r="20"></circle>
+                                    <circle class="circle-spin" cx="25" cy="25" r="20"></circle>
+                                </svg>
+                                <svg class="bolt-icon" viewBox="0 0 24 24" width="18" height="18" fill="#00e5ff">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                                </svg>
+                            </div>
+                            <div class="card-titles">
+                                <span class="card-label">BMW 800V Electric</span>
+                                <h4 class="price-title cyan-text">1.35 <small>RON/kWh</small></h4>
+                            </div>
+                        </div>
+
+                        <div class="graph-wrapper">
+                            <svg class="graph-svg" viewBox="0 0 200 60">
+                                <defs>
+                                    <linearGradient id="cyanGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.4"/>
+                                        <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                                <path class="graph-area" fill="url(#cyanGrad)" d="M0,10 Q50,15 100,35 T160,45 T200,50 L200,60 L0,60 Z"/>
+                                <path class="graph-line line-cyan" d="M0,10 Q50,15 100,35 T160,45 T200,50"/>
+                            </svg>
+                            <div class="trend-indicator cyan-badge">
+                                <span>▼ -62% Cost</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1428,7 +1683,7 @@
     <section id="brain">
         <div class="content grid-2" style="max-width: 1200px;">
             <div class="reveal-left">
-                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2000&auto=format&fit=crop" alt="Digital Dashboard" class="image-card">
+                <img src="https://cdn.motor1.com/images/mgl/y2g07m/s1/bmw-i3-edrive35l.webp" alt="Digital Dashboard" class="image-card">
             </div>
             <div class="reveal-right">
                 <h2 class="section-title gradient-text">Un Super-Computer pe Roți</h2>
@@ -1516,12 +1771,12 @@
                 <div class="reveal-left">
                     <h3 style="color: var(--electric-cyan); margin-bottom: 25px; font-size: 1.5rem;">Exterior Magnetizant</h3>
                     <p class="section-text">O capodoperă a proporțiilor. Noul i3 redefinește silueta de sedan sportiv veritabil. Grila frontală iluminată (Illuminated Kidney) și liniile aerodinamice ascuțite impun respect și admirație pe orice șosea. Aerodinamica optimizată maximizează autonomia.</p>
-                    <img src="https://images.unsplash.com/photo-1555626906-fcf10d6851b4?q=80&w=2000&auto=format&fit=crop" alt="BMW Exterior" class="image-card" style="height: 400px;">
+                    <img src="https://hips.hearstapps.com/hmg-prod/images/a17ab50a-87d4-4d85-9b31-d0a5518712c8.jpg?crop=0.701xw:0.700xh;0.230xw,0.220xh&resize=1200😘" alt="BMW Exterior" class="image-card" style="height: 400px;">
                 </div>
                 <div class="reveal-right" style="transition-delay: 0.2s;">
                     <h3 style="color: var(--electric-cyan); margin-bottom: 25px; font-size: 1.5rem;">Interior Orientat Către Tine</h3>
                     <p class="section-text">Deși infuzat cu ecrane digitale masive și lumini ambientale dinamice interactive, interiorul păstrează ADN-ul pur BMW: orientarea impecabilă către șofer. Ești mereu în centrul acțiunii, controlând viitorul dintr-o cabină premium.</p>
-                    <img src="https://images.unsplash.com/photo-1617469165786-8007eda3caa7?q=80&w=2000&auto=format&fit=crop" alt="BMW Interior" class="image-card" style="height: 400px;">
+                    <img src="https://i.ytimg.com/vi/378l0kNi0Jc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDjmM_IJtbC-J5erQStRMeQdX8H5A" alt="BMW Interior" class="image-card" style="height: 400px;">
                 </div>
             </div>
         </div>
@@ -1532,15 +1787,15 @@
         <h2 class="section-title gradient-text reveal" style="text-align: center; margin-bottom: 60px; font-size: 2.5rem;">Viziunea în Detaliu</h2>
         <div class="gallery-grid">
             <div class="gallery-item reveal">
-                <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1000&auto=format&fit=crop" alt="Detail 1">
+                <img src="https://dd-tuning.ro/assets/galleries/189102/594/bmw-i3-na0_2.jpg" alt="Detail 1">
                 <div class="gallery-caption">Faruri LED Adaptive</div>
             </div>
             <div class="gallery-item reveal" style="transition-delay: 0.2s;">
-                <img src="https://images.unsplash.com/photo-1619551734325-81aaf323686c?q=80&w=1000&auto=format&fit=crop" alt="Detail 2">
+                <img src="https://www.topgear.com/sites/default/files/2026/03/1-BMW-i3-prototype-review-2026.jpg" alt="Detail 2">
                 <div class="gallery-caption">Încărcare High-Power</div>
             </div>
             <div class="gallery-item reveal" style="transition-delay: 0.4s;">
-                <img src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=1000&auto=format&fit=crop" alt="Detail 3">
+                <img src="https://mediapool.bmwgroup.com/cache/P9/202603/P90632554/P90632554-bmw-i3-rim-2250px.jpg" alt="Detail 3">
                 <div class="gallery-caption">Jante Aerodinamice M</div>
             </div>
         </div>
@@ -1712,25 +1967,25 @@
                 {
                     name: "MotorPark România",
                     coords: [44.7180, 26.6290],
-                    image: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=800&auto=format&fit=crop",
+                    image: "https://mediapool.bmwgroup.com/cache/P9/202209/P90477172/P90477172-romanian-endurance-series-500-km-motorpark-romania-09-2022-2000px.jpg",
                     desc: "Startul. Un test extrem pe circuit pentru a demonstra accelerația instananee și dinamica șasiului noului i3 pe viraje rapide."
                 },
                 {
                     name: "Barajul Paltinu",
                     coords: [45.2422, 25.7420],
-                    image: "https://images.unsplash.com/photo-1506501139174-099022df5260?q=80&w=800&auto=format&fit=crop",
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbitRAYnCspcKSZaRmqPZgwIhlYF4KRovojXWeoOQvPt_H1Yi0Cm8n3hM&s=10",
                     desc: "Eficiența prinde contur. Drumuri șerpuite unde regenerarea energiei la frânare și echilibrul perfect își spun cuvântul."
                 },
                 {
                     name: "Bâlea Lac",
                     coords: [45.6033, 24.6146],
-                    image: "https://images.unsplash.com/photo-1517409277028-c923f5b82260?q=80&w=800&auto=format&fit=crop",
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL_P9BsKWCtkUkQoh4kqrsYrRQGmvZmwZ91dzN2Qo7ksEfEj3Y8V7Lg2s&s=10",
                     desc: "Altitudine extremă. Transfăgărășanul testează anduranța și sistemul de răcire al bateriei în condiții de urcare solicitantă."
                 },
                 {
                     name: "BMW România (București)",
                     coords: [44.4930, 26.0790],
-                    image: "https://images.unsplash.com/photo-1617469165786-8007eda3caa7?q=80&w=800&auto=format&fit=crop",
+                    image: "https://bmw-bavaria.ro/wp-content/uploads/sites/2/2019/06/despre-noi-automobile-bavaria.jpg",
                     desc: "Întoarcerea acasă. Sistemele de asistență inteligente și condusul autonom Level 3 se activează perfect în traficul urban."
                 }
             ];
@@ -1805,61 +2060,64 @@
             updateLocation(0);
         }
 
-        // ========== CONFIGURATOR LOGIC ==========
-        const openConfigBtn = document.getElementById('open-config-btn');
-        const closeConfigBtn = document.getElementById('close-modal-btn');
-        const configModal = document.getElementById('config-modal');
-        const formInputs = document.querySelectorAll('#car-config-form input');
-        const dynamicPriceDisplay = document.getElementById('dynamic-price');
+        document.addEventListener('DOMContentLoaded', () => {
+            // ========== CONFIGURATOR LOGIC (BULLETPROOF) ==========
+            const configModal = document.getElementById('config-modal');
+            const dynamicPriceDisplay = document.getElementById('dynamic-price');
+            const BASE_PRICE = 62436;
 
-        const BASE_PRICE = 62436;
+            if (!configModal) {
+                console.error("Eroare: Nu am găsit <div id='config-modal'> în HTML.");
+                return;
+            }
 
-        if (openConfigBtn) {
-            openConfigBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                configModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-        }
+            document.addEventListener('click', (e) => {
+                const openBtn = e.target.closest('#open-config-btn');
+                if (openBtn) {
+                    e.preventDefault();
+                    configModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    calculateTotal();
+                }
 
-        if (closeConfigBtn) {
-            closeConfigBtn.addEventListener('click', () => {
-                configModal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
-        }
+                const closeBtn = e.target.closest('#close-modal-btn');
+                if (closeBtn) {
+                    configModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
 
-        if (configModal) {
-            configModal.addEventListener('click', (e) => {
                 if (e.target === configModal) {
                     configModal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
+                    document.body.style.overflow = '';
                 }
             });
-        }
 
-        function calculateTotal() {
-            let total = BASE_PRICE;
+            function calculateTotal() {
+                if (!dynamicPriceDisplay) return;
 
-            const checkedRadios = document.querySelectorAll('#car-config-form input[type="radio"]:checked');
-            checkedRadios.forEach(radio => {
-                total += parseInt(radio.value);
-            });
+                let total = BASE_PRICE;
 
-            const checkedBoxes = document.querySelectorAll('#car-config-form input[type="checkbox"]:checked');
-            checkedBoxes.forEach(box => {
-                total += parseInt(box.value);
-            });
+                const checkedRadios = configModal.querySelectorAll('input[type="radio"]:checked');
+                checkedRadios.forEach(radio => {
+                    total += parseInt(radio.value || 0);
+                });
 
-            const formattedPrice = new Intl.NumberFormat('de-DE').format(total) + ' €';
-            dynamicPriceDisplay.textContent = formattedPrice;
-        }
+                const checkedBoxes = configModal.querySelectorAll('input[type="checkbox"]:checked');
+                checkedBoxes.forEach(box => {
+                    total += parseInt(box.value || 0);
+                });
 
-        formInputs.forEach(input => {
-            input.addEventListener('change', calculateTotal);
+                const formattedPrice = new Intl.NumberFormat('de-DE').format(total) + ' €';
+                dynamicPriceDisplay.textContent = formattedPrice;
+            }
+
+            const configForm = document.getElementById('car-config-form');
+            if (configForm) {
+                configForm.addEventListener('change', calculateTotal);
+            }
+
+            calculateTotal();
         });
-
-        calculateTotal();
     </script>
 
     <footer class="site-footer">
