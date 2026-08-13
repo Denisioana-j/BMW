@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noul BMW i3 - Mai multă bucurie de a conduce ca niciodată</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600;800&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         /* CSS Variables */
         :root {
@@ -76,6 +79,111 @@
             transform: translateX(0);
         }
 
+        /* ---------- EVENT MAP SECTION ---------- */
+        #event-route {
+            padding: 100px 5vw;
+            background: var(--dark-grey); /* Sau #0f172a daca folosesti codul anterior */
+            border-top: 1px solid rgba(0, 229, 255, 0.1);
+        }
+
+        .map-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(3, 3, 3, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+            z-index: 1;
+            background: #000;
+        }
+
+        .location-panel {
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .location-image-wrapper {
+            width: 100%;
+            height: 250px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.15); /* Accent glow */
+            position: relative;
+        }
+
+        .location-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Săgeți pentru navigare prin locații */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #00e5ff; /* Cyan electric */
+            border: 1px solid #00e5ff;
+            border-radius: 50%;
+            width: 40px; 
+            height: 40px;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover { 
+            background: #00e5ff; 
+            color: #000; 
+        }
+        .left-arrow { left: 10px; }
+        .right-arrow { right: 10px; }
+
+        .location-title {
+            font-family: sans-serif;
+            color: #00e5ff;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .location-desc {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #a0a0a0;
+        }
+
+        .leaflet-control-zoom a {
+            background-color: #1a1a1a !important;
+            color: #00e5ff !important;
+            border-color: #333 !important;
+        }
+
+        @media (max-width: 992px) {
+            .map-layout { grid-template-columns: 1fr; }
+            #map { height: 400px; }
+        }
+
         /* ---------------- HERO SECTION & VISUAL HOOK ---------------- */
         #hero {
             height: 100vh;
@@ -86,109 +194,193 @@
             justify-content: center;
             overflow: hidden;
             background: radial-gradient(circle at center, #151520 0%, var(--deep-black) 100%);
+            padding-top: 70px;
         }
 
         .dashboard-container {
             position: relative;
             z-index: 10;
-            width: 90vw;
+            width: 95vw;
             max-width: 1000px;
-            height: 50vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            perspective: 1200px;
+            height: 520px;
+            background: radial-gradient(circle at 50% 40%, #0d111a 0%, #040508 70%, #000000 100%);
+            border-radius: 40px 40px 10px 10px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            border: 2px solid #1a1d24;
+            padding: 20px;
+            overflow: hidden;
         }
 
-        /* Improved Analog Dials */
-        .analog-layer {
-            position: absolute;
+        .dashboard-container svg {
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            transition: all 2s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .dial {
-            width: 280px;
-            height: 280px;
-            border: 12px solid #1a1a1a;
-            border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle at top left, #2a2a2a, #050505);
-            box-shadow: 
-                0 0 0 2px #444, 
-                inset 0 0 40px #000, 
-                inset 0 0 10px rgba(255,255,255,0.1),
-                0 15px 30px rgba(0,0,0,0.8);
+        .gauge-track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.12);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .gauge-glow-bg {
+            fill: none;
+            stroke: url(#redGlowGradient);
+            stroke-width: 24;
+            opacity: 0.25;
+            filter: blur(8px);
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .gauge-progress {
+            fill: none;
+            stroke: url(#activeSpeedGradient);
+            stroke-width: 7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-dashoffset 0.05s ease-out;
+        }
+
+        .gauge-progress-rpm {
+            fill: none;
+            stroke: url(#activeRpmGradient);
+            stroke-width: 7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke-dashoffset 0.05s ease-out;
+        }
+
+        .tick {
+            stroke: rgba(255, 255, 255, 0.6);
+            stroke-width: 2;
+        }
+
+        .tick-major {
+            stroke: #ffffff;
+            stroke-width: 3;
+        }
+
+        .gauge-text {
+            fill: #e1e6ed;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: central;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .speed-val {
+            font-size: 52px;
+            font-weight: 700;
+            fill: #ffffff;
+            letter-spacing: -1px;
+        }
+
+        .speed-unit {
+            font-size: 14px;
+            fill: #8a94a6;
+            font-weight: 500;
+        }
+
+        .rpm-val {
+            font-size: 44px;
+            font-weight: 700;
+            fill: #ffffff;
+        }
+
+        .rpm-unit {
+            font-size: 13px;
+            fill: #8a94a6;
+            font-weight: 500;
+        }
+
+        .center-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -48%);
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
+            width: 320px;
+            text-align: center;
+        }
+
+        .car-graphic {
+            width: 180px;
+            height: auto;
+            filter: drop-shadow(0 10px 15px rgba(220, 38, 38, 0.3));
+            margin-bottom: 10px;
+        }
+
+        .tpms-values {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px 100px;
+            position: absolute;
+            width: 100%;
+            top: 40%;
+            font-size: 11px;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .tpms-item {
+            display: flex;
+            flex-direction: column;
             align-items: center;
         }
 
-        .dial::before {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 28px; height: 28px;
-            background: radial-gradient(circle, #ddd, #666);
-            border-radius: 50%;
-            z-index: 5;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.6);
-        }
-        
-        .dial-inner {
-            position: absolute;
-            width: 85%;
-            height: 85%;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.05);
+        .tpms-item span {
+            font-size: 9px;
+            color: #64748b;
+            font-weight: 400;
         }
 
-        .dial-label {
+        .bottom-bar {
             position: absolute;
-            bottom: 25%;
+            bottom: 25px;
+            left: 0;
             width: 100%;
-            text-align: center;
-            font-size: 0.9rem;
-            color: #888;
-            letter-spacing: 2px;
+            padding: 0 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
             font-weight: 600;
         }
 
-        .needle {
-            width: 4px;
-            height: 125px;
-            background: linear-gradient(to top, #ff0000, #ff5500);
-            position: absolute;
-            bottom: 50%;
-            left: calc(50% - 2px);
-            transform-origin: bottom center;
-            transform: rotate(-130deg);
-            transition: transform 2.5s cubic-bezier(0.5, 0, 0.2, 1);
-            z-index: 4;
-            box-shadow: 0 0 15px #ff3300, 0 0 5px #ff0000;
-            border-radius: 4px 4px 0 0;
+        .gear-indicator {
+            font-size: 22px;
+            color: #ffffff;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .dial-marks {
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            background: repeating-conic-gradient(from -135deg, transparent 0deg 9deg, rgba(255,255,255,0.8) 9deg 10deg);
-            clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
-            opacity: 0.6;
+        .odo-info {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #cbd5e1;
         }
-        
-        .dial-marks-thick {
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            background: repeating-conic-gradient(from -135deg, transparent 0deg 28deg, #fff 28deg 30deg);
-            clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
+
+        .odo-info span {
+            color: #64748b;
+            margin-right: 4px;
+        }
+
+        .accent-line-left, .accent-line-right {
+            fill: none;
+            stroke: #ef4444;
+            stroke-width: 2;
+            opacity: 0.8;
         }
 
         /* Digital HUD (Gen6) */
@@ -268,29 +460,98 @@
             transform: scale(1.05);
         }
 
-        /* Animation States */
-        body.engine-started .needle {
-            transform: rotate(130deg); /* Rev to max */
-        }
-        body.engine-started .dial {
-            box-shadow: 0 0 0 2px #444, inset 0 0 60px rgba(255,50,0,0.3), 0 15px 30px rgba(0,0,0,0.8);
-        }
-
-        body.morphing .analog-layer {
-            opacity: 0;
-            transform: scale(2.2) translateZ(150px);
-            filter: blur(30px);
-        }
-
-        body.morphing .digital-layer {
-            opacity: 1;
-            transform: scale(1) translateZ(0);
-        }
-
-        body.morphing #start-btn {
+        /* ---------- IGNITION POPUP & MORPH EFFECT ---------- */
+        #ignition-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: #050505;
+            padding: 40px 60px;
+            z-index: 9999;
             opacity: 0;
             pointer-events: none;
-            transform: translateY(60px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #ignition-popup::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, #00e5ff);
+            animation: rotateGlow 2.5s linear infinite;
+            z-index: -2;
+        }
+
+        #ignition-popup::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 4px;
+            z-index: -1;
+        }
+
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #ignition-popup.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #ignition-popup.morph {
+            transform: translate(-50%, -50%) scale(40);
+            opacity: 0;
+            transition: transform 1s cubic-bezier(0.8, 0, 0.2, 1), opacity 0.8s ease-in 0.2s;
+        }
+
+        .popup-text {
+            color: #fff;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+        }
+
+        .popup-subtext {
+            color: #00e5ff;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* Animation States */
+        @keyframes needle-rev-speed {
+            0% { --needle-rotation-speed: 0; }
+            50% { --needle-rotation-speed: 330; }
+            100% { --needle-rotation-speed: 0; }
+        }
+
+        @keyframes needle-rev-rpm {
+            0% { --needle-rotation-rpm: 0; }
+            50% { --needle-rotation-rpm: 8; }
+            100% { --needle-rotation-rpm: 0; }
+        }
+
+        body.engine-started .gauge-needle.speed {
+            animation: needle-rev-speed 3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+
+        body.engine-started .gauge-needle.rpm {
+            animation: needle-rev-rpm 3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
         }
 
         /* ---------------- SECTIONS ---------------- */
@@ -539,6 +800,8 @@
             transition: all 0.4s;
             box-shadow: 0 15px 40px rgba(255,255,255,0.15);
             letter-spacing: 2px;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-primary:hover {
@@ -547,53 +810,596 @@
             transform: translateY(-5px);
         }
 
+        /* ---------- FOOTER ---------- */
+        .site-footer {
+            background: #050505;
+            padding: 60px 5vw 30px;
+            border-top: 1px solid #1a1a1a;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .footer-logo {
+            font-family: 'Syncopate', sans-serif;
+            color: var(--electric-cyan);
+            font-size: 1.5rem;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .footer-info p { margin: 5px 0; }
+        .footer-legal { text-align: left; margin-top: auto; }
+
+        /* ---------- CONFIGURATOR MODAL ---------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: #0a0a0f;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            transform: translateY(20px);
+            transition: transform 0.4s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid #1f1f1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0; color: #fff; font-size: 1.5rem;
+        }
+
+        .close-btn {
+            background: none; border: none; color: #888;
+            font-size: 2rem; cursor: pointer; transition: color 0.3s;
+        }
+
+        .close-btn:hover { color: var(--electric-cyan); }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .modal-body::-webkit-scrollbar { width: 8px; }
+        .modal-body::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        .config-section {
+            margin-bottom: 40px;
+        }
+
+        .config-section h3 {
+            color: var(--electric-cyan);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .option-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: #444;
+        }
+
+        .option-card input[type="radio"],
+        .option-card input[type="checkbox"] {
+            display: none;
+        }
+
+        .option-card:has(input:checked) {
+            border-color: var(--electric-cyan);
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        .color-swatch {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            display: block;
+        }
+
+        .option-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 1rem; }
+        .option-info span { color: #888; font-size: 0.9rem; }
+        .option-info span.desc { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #666; }
+
+        .modal-footer {
+            padding: 25px 30px;
+            border-top: 1px solid #1f1f1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #050505;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .price-calc {
+            font-size: 1.5rem;
+            color: #fff;
+            font-family: 'Syncopate', sans-serif;
+        }
+
+        #dynamic-price {
+            color: var(--electric-cyan);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .modal-footer { flex-direction: column; gap: 20px; text-align: center; }
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ========== NAVIGATION BAR ========== */
+        nav.navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(3, 3, 3, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 0 5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            box-shadow: 0 4px 30px rgba(0, 229, 255, 0.1);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .navbar-brand {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--electric-cyan);
+            text-decoration: none;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-brand:hover {
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .navbar-brand::before {
+            content: '◆';
+            color: var(--bmw-blue);
+            font-size: 1.2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .nav-item a {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #d0d0d0;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding: 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--bmw-blue), var(--electric-cyan));
+            transition: width 0.3s ease;
+        }
+
+        .nav-item a:hover {
+            color: var(--electric-cyan);
+        }
+
+        .nav-item a:hover::after {
+            width: 100%;
+        }
+
+        .nav-item a.active {
+            color: var(--electric-cyan);
+        }
+
+        .nav-item a.active::after {
+            width: 100%;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 6px;
+        }
+
+        .hamburger span {
+            width: 28px;
+            height: 3px;
+            background: var(--electric-cyan);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav.navbar {
+                padding: 0 4vw;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(3, 3, 3, 0.98);
+                backdrop-filter: blur(10px);
+                flex-direction: column;
+                gap: 0;
+                padding: 20px 0;
+                border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+
+            .nav-menu.active {
+                max-height: 400px;
+            }
+
+            .nav-item {
+                width: 100%;
+                padding: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .nav-item a {
+                display: block;
+                padding: 18px 4vw;
+                font-size: 0.95rem;
+            }
+
+            .nav-item a::after {
+                display: none;
+            }
+
+            .nav-item a.active {
+                background: rgba(0, 229, 255, 0.1);
+                border-left: 3px solid var(--electric-cyan);
+                padding-left: calc(4vw - 3px);
+            }
+        }
+
         @media (max-width: 1024px) {
+            .dashboard-container {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .analog-layer {
+                width: 100%;
+                flex-direction: column;
+                gap: 60px;
+            }
+
+            .gauge-wrapper {
+                width: 340px;
+                height: 260px;
+            }
+
+            .gauge-digital-value {
+                font-size: 3rem;
+            }
+
             .grid-2 { grid-template-columns: 1fr; gap: 50px; }
             .digital-title { font-size: 2.5rem; }
-            .dial { width: 180px; height: 180px; border-width: 8px; }
-            .needle { height: 80px; }
             .section-title { font-size: 2.5rem; }
             .gallery-grid { grid-template-columns: 1fr; }
             .overlay, #performance .overlay { background: linear-gradient(180deg, var(--deep-black) 60%, transparent); }
+        }
+
+        @media (max-width: 768px) {
+            .analog-layer {
+                flex-direction: column;
+                gap: 50px;
+            }
+
+            .gauge-wrapper {
+                width: 300px;
+                height: 240px;
+            }
+
+            .gauge-digital-value {
+                font-size: 2.5rem;
+            }
+
+            .gauge-label {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-container {
+                max-width: 95vw;
+                height: auto;
+                padding: 20px;
+            }
+
+            .analog-layer {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .gauge-wrapper {
+                width: 260px;
+                height: 200px;
+            }
+
+            .gauge-digital-value {
+                font-size: 2rem;
+            }
+
+            .gauge-digital-label {
+                font-size: 0.75rem;
+            }
+
+            .gauge-label {
+                font-size: 11px;
+            }
+        }
+
+        /* Adjust hero section to accommodate fixed navbar */
+        body {
+            scroll-behavior: smooth;
+            scroll-padding-top: 70px;
+        }
+
+        #hero {
+            margin-top: 0;
         }
     </style>
 </head>
 <body>
 
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar">
+        <a href="#hero" class="navbar-brand">BMW i3</a>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="#renastere">Renaștere</a></li>
+            <li class="nav-item"><a href="#brain">SPECIFICATII</a></li>
+            <li class="nav-item"><a href="#design">DESIGN</a></li>
+            <li class="nav-item"><a href="#event-route">Eveniment</a></li>
+            <li class="nav-item"><a href="#cta">PARTICIPA LA POVESTE</a></li>
+        </ul>
+    </nav>
+
     <!-- HERO / VISUAL HOOK -->
     <section id="hero">
         <div class="dashboard-container">
-            <!-- Istorie / Tradiție -->
-            <div class="analog-layer">
-                <div class="dial">
-                    <div class="dial-inner">
-                        <div class="dial-marks"></div>
-                        <div class="dial-marks-thick"></div>
-                        <div class="dial-label">km/h</div>
-                    </div>
-                    <div class="needle"></div>
-                </div>
-                <div class="dial">
-                    <div class="dial-inner">
-                        <div class="dial-marks"></div>
-                        <div class="dial-marks-thick"></div>
-                        <div class="dial-label">RPM x1000</div>
-                    </div>
-                    <div class="needle"></div>
+            <svg viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <radialGradient id="redGlowGradient" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ff0033" stop-opacity="0.8"/>
+                        <stop offset="70%" stop-color="#cc0022" stop-opacity="0.3"/>
+                        <stop offset="100%" stop-color="#990000" stop-opacity="0"/>
+                    </radialGradient>
+
+                    <linearGradient id="activeSpeedGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="25%" stop-color="#ff4d4d"/>
+                        <stop offset="70%" stop-color="#ff0033"/>
+                        <stop offset="100%" stop-color="#e60000"/>
+                    </linearGradient>
+
+                    <linearGradient id="activeRpmGradient" x1="100%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="30%" stop-color="#ff4d4d"/>
+                        <stop offset="75%" stop-color="#ff0033"/>
+                        <stop offset="100%" stop-color="#e60000"/>
+                    </linearGradient>
+
+                    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                    </filter>
+                </defs>
+
+                <!-- VITEZOMETRU (STANGA) -->
+                <path class="gauge-glow-bg" d="M 380 90 L 160 90 L 70 170 L 60 310 L 120 410 L 260 410" />
+                <path class="gauge-track" d="M 380 90 L 160 90 L 70 170 L 60 310 L 120 410 L 260 410" />
+                <path class="accent-line-left" d="M 385 82 L 155 82 L 62 165 L 52 312 L 115 418 L 265 418" />
+                <path id="speedProgress" class="gauge-progress" filter="url(#neonGlow)"
+                      d="M 380 90 L 160 90 L 70 170 L 60 310 L 120 410 L 260 410"
+                      stroke-dasharray="880" stroke-dashoffset="880" />
+
+                <!-- Gradatii Vitezometru -->
+                <line x1="260" y1="410" x2="260" y2="422" class="tick-major" /><text x="260" y="438" class="gauge-text">0</text>
+                <line x1="180" y1="410" x2="175" y2="422" class="tick" /><text x="175" y="438" class="gauge-text">30</text>
+                <line x1="120" y1="410" x2="110" y2="420" class="tick-major" /><text x="100" y="435" class="gauge-text">60</text>
+                <line x1="60" y1="310" x2="48" y2="315" class="tick-major" /><text x="32" y="315" class="gauge-text">90</text>
+                <line x1="65" y1="180" x2="52" y2="175" class="tick-major" /><text x="35" y="170" class="gauge-text">150</text>
+                <line x1="160" y1="90" x2="155" y2="78" class="tick-major" /><text x="155" y="62" class="gauge-text">210</text>
+                <line x1="270" y1="90" x2="270" y2="78" class="tick" /><text x="270" y="62" class="gauge-text">270</text>
+                <line x1="380" y1="90" x2="380" y2="78" class="tick-major" /><text x="380" y="62" class="gauge-text">330</text>
+
+                <g transform="translate(200, 230)">
+                    <path d="M -45 -40 L -37 -40 L -42 -22 L -50 -22 Z" fill="#0066b1"/>
+                    <path d="M -39 -40 L -31 -40 L -36 -22 L -44 -22 Z" fill="#002b49"/>
+                    <path d="M -33 -40 L -25 -40 L -30 -22 L -38 -22 Z" fill="#e22617"/>
+                    <text x="-18" y="-26" fill="#ffffff" font-size="12" font-weight="800" letter-spacing="1">M</text>
+                    <text id="speedText" x="0" y="15" class="speed-val" text-anchor="middle">0</text>
+                    <text x="55" y="15" class="speed-unit">km/h</text>
+                </g>
+
+                <!-- TUROMETRU (DREAPTA) -->
+                <path class="gauge-glow-bg" d="M 620 90 L 840 90 L 930 170 L 940 310 L 880 410 L 740 410" />
+                <path class="gauge-track" d="M 620 90 L 840 90 L 930 170 L 940 310 L 880 410 L 740 410" />
+                <path class="accent-line-right" d="M 615 82 L 845 82 L 938 165 L 948 312 L 885 418 L 735 418" />
+                <path id="rpmProgress" class="gauge-progress-rpm" filter="url(#neonGlow)"
+                      d="M 740 410 L 880 410 L 940 310 L 930 170 L 840 90 L 620 90"
+                      stroke-dasharray="880" stroke-dashoffset="880" />
+
+                <!-- Gradatii Turometru -->
+                <line x1="740" y1="410" x2="740" y2="422" class="tick-major" /><text x="740" y="438" class="gauge-text">0</text>
+                <line x1="820" y1="410" x2="820" y2="422" class="tick" /><text x="820" y="438" class="gauge-text">1</text>
+                <line x1="880" y1="410" x2="890" y2="420" class="tick-major" /><text x="900" y="435" class="gauge-text">2</text>
+                <line x1="940" y1="310" x2="952" y2="315" class="tick-major" /><text x="968" y="315" class="gauge-text">3</text>
+                <line x1="935" y1="180" x2="948" y2="175" class="tick-major" /><text x="965" y="170" class="gauge-text">5</text>
+                <line x1="840" y1="90" x2="845" y2="78" class="tick-major" stroke="#ef4444"/><text x="845" y="62" class="gauge-text" fill="#ef4444">6</text>
+                <line x1="730" y1="90" x2="730" y2="78" class="tick-major" stroke="#ef4444"/><text x="730" y="62" class="gauge-text" fill="#ef4444">7</text>
+                <line x1="620" y1="90" x2="620" y2="78" class="tick-major" stroke="#ef4444"/><text x="620" y="62" class="gauge-text" fill="#ef4444">8</text>
+
+                <g transform="translate(800, 230)">
+                    <text id="rpmText" x="0" y="15" class="rpm-val" text-anchor="middle">0.0</text>
+                    <text x="0" y="40" class="rpm-unit" text-anchor="middle">1/min x1000</text>
+                </g>
+            </svg>
+
+            <div class="center-display">
+                <svg class="car-graphic" viewBox="0 0 200 120" fill="none">
+                    <ellipse cx="100" cy="70" rx="70" ry="30" fill="url(#redGlowGradient)" opacity="0.6"/>
+                    <path d="M 50 75 C 40 75 35 60 45 45 C 55 30 80 20 100 20 C 120 20 145 30 155 45 C 165 60 160 75 150 75 Z" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+                    <path d="M 65 48 C 75 32 125 32 135 48 Z" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+                    <circle cx="45" cy="50" r="3" fill="#38bdf8"/><circle cx="155" cy="50" r="3" fill="#38bdf8"/>
+                    <circle cx="55" cy="72" r="3" fill="#ef4444"/><circle cx="145" cy="72" r="3" fill="#ef4444"/>
+                </svg>
+
+                <div class="tpms-values">
+                    <div class="tpms-item">154 <span>kPa</span></div>
+                    <div class="tpms-item">315 <span>kPa</span></div>
+                    <div class="tpms-item">610 <span>kPa</span></div>
+                    <div class="tpms-item">251 <span>kPa</span></div>
                 </div>
             </div>
 
-            <!-- Viitorul Electric -->
-            <div class="digital-layer">
-                <h1 class="digital-title gradient-text">Enjoy more BMW than ever.</h1>
-                <p class="digital-subtitle">BMW PANORAMIC VISION INITIATED</p>
+            <div class="bottom-bar">
+                <div><span style="color: #ef4444; margin-right: 8px;">&#9679;</span> 0 km</div>
+                <div class="odo-info">
+                    <div><span>ODO</span> 770175 km</div>
+                    <div><span>Trip A</span> 521 km</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="gear-indicator">D1</div>
+                    <div>24.5 °C</div>
+                </div>
             </div>
         </div>
         <button id="start-btn">START ENGINE</button>
+        <div id="ignition-popup">
+            <h3 class="popup-text">Adrenalină pură.</h3>
+            <p class="popup-subtext">Ești pregătit să redefinim viitorul?</p>
+        </div>
     </section>
 
     <!-- FREEDOM / AUTONOMY -->
-    <section id="freedom">
+    <section id="renastere">
         <div class="parallax-bg"></div>
         <div class="overlay"></div>
         <div class="content grid-2">
@@ -669,6 +1475,24 @@
         </div>
     </section>
 
+    <section id="event-route" class="reveal">
+        <h2 class="section-title text-center" style="text-align: center; color: #fff; margin-bottom: 20px;">Traseul Experienței Electrice</h2>
+        <p class="section-text" style="text-align: center; max-width: 700px; margin: 0 auto 50px; color: #a0a0a0;">Urmărește circuitul complet. Folosește săgețile pentru a naviga prin etapele lansării, de la MotorPark până în București.</p>
+        
+        <div class="map-layout">
+            <div id="map"></div>
+            <div class="location-panel">
+                <div class="location-image-wrapper">
+                    <button id="prev-location" class="nav-arrow left-arrow">&#10094;</button>
+                    <img id="panel-image" src="" alt="Locatie Eveniment">
+                    <button id="next-location" class="nav-arrow right-arrow">&#10095;</button>
+                </div>
+                <h3 id="panel-title" class="location-title">Titlu</h3>
+                <p id="panel-desc" class="location-desc">Descriere</p>
+            </div>
+        </div>
+    </section>
+
     <!-- NEW SECTION: SUSTAINABILITY -->
     <section id="sustainability">
         <div class="content grid-2" style="max-width: 1200px;">
@@ -727,31 +1551,139 @@
         <h2 class="section-title">Viitorul Începe Aici.</h2>
         <p class="section-text" style="max-width: 700px; margin: 0 auto; color: #fff;">Tehnologie de ultimă generație. Performanță legendară. O experiență fără compromisuri, creată pentru cei care conduc schimbarea.</p>
         <div class="price">De la 62.436 €</div>
-        <a href="#" class="btn-primary" onclick="alert('Redirecționare către formularul de rezervare...'); return false;">Fii Printre Primii. Rezervă Acum.</a>
+        <button id="open-config-btn" class="btn-primary">Fii Printre Primii. Configurează Acum.</button>
         <p style="margin-top: 40px; color: #888; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase;">Lansare oficială: Octombrie 2026</p>
     </section>
 
     <script>
-        // Start Engine Logic
+        // ========== NAVIGATION BAR FUNCTIONALITY ==========
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+        const navLinks = document.querySelectorAll('.nav-item a');
+
+        // Hamburger menu toggle
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when link is clicked
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Active link highlighting on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section[id]');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').slice(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // ========== DIGITAL COCKPIT GAUGE ANIMATION ==========
+        const speedProgress = document.getElementById('speedProgress');
+        const rpmProgress = document.getElementById('rpmProgress');
+        const speedText = document.getElementById('speedText');
+        const rpmText = document.getElementById('rpmText');
+
+        const pathLength = 880; // Approximate total length of gauge tracks
+
+        function setSpeed(speedVal) {
+            const percentage = Math.min(speedVal / 330, 1); // Max speed ~330 km/h
+            const offset = pathLength * (1 - percentage);
+            speedProgress.style.strokeDashoffset = offset;
+            speedText.textContent = Math.round(speedVal);
+        }
+
+        function setRpm(rpmVal) {
+            const percentage = Math.min(rpmVal / 8, 1); // Max RPM ~8000
+            const offset = pathLength * (1 - percentage);
+            rpmProgress.style.strokeDashoffset = offset;
+            rpmText.textContent = rpmVal.toFixed(1);
+        }
+
+        function runStartupSweep() {
+            const duration = 2200; // 2.2 seconds
+            const startTime = Date.now();
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Easing func (ease-in-out cubic)
+                const easeProgress = progress < 0.5 
+                    ? 4 * progress * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+                const speed = easeProgress * 280;
+                setSpeed(speed);
+
+                const rpm = easeProgress * 7.5;
+                setRpm(rpm);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // MODIFICARE: Păstrăm valorile la Redline (nu le mai resetăm la 0)
+                    setSpeed(280);
+                    setRpm(7.5);
+                    
+                    // Adăugăm un efect de glow roșu pe ceasuri la redline
+                    document.getElementById('rpmProgress').style.filter = 'drop-shadow(0 0 10px #ef4444)';
+                    document.getElementById('speedProgress').style.filter = 'drop-shadow(0 0 10px #38bdf8)';
+                }
+            };
+            animate();
+        }
+
         const startBtn = document.getElementById('start-btn');
-        
         startBtn.addEventListener('click', () => {
-            // 1. Rev the analog engine
-            document.body.classList.add('engine-started');
+            // 1. Începe turarea motorului
+            runStartupSweep();
+            
             startBtn.innerHTML = "SYSTEM BOOTING...";
             startBtn.style.color = "var(--electric-cyan)";
             startBtn.style.borderColor = "var(--electric-cyan)";
             startBtn.style.background = "rgba(0, 229, 255, 0.1)";
+            startBtn.style.pointerEvents = "none";
             
-            // 2. Morph to Digital after max rev
+            // 2. După ce ceasurile ajung la redline (2.2s), afișăm popup-ul
             setTimeout(() => {
-                document.body.classList.add('morphing');
-            }, 1800);
-            
-            // 3. Scroll to freedom section to begin the story
-            setTimeout(() => {
-                document.getElementById('freedom').scrollIntoView({ behavior: 'smooth' });
-            }, 4500);
+                const popup = document.getElementById('ignition-popup');
+                popup.classList.add('active');
+                
+                // 3. Lăsăm textul pe ecran 2.5 secunde, apoi facem morphing
+                setTimeout(() => {
+                    popup.classList.add('morph');
+                    
+                    // 4. În timp ce se face morphing, dăm scroll la interfața "Renastere"
+                    setTimeout(() => {
+                        document.getElementById('renastere').scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Opțional: Resetăm starea popup-ului după ce tranziția e gata
+                        setTimeout(() => {
+                            popup.classList.remove('active', 'morph');
+                            startBtn.innerHTML = "ENGINE RUNNING";
+                        }, 1000);
+                    }, 300);
+                    
+                }, 2500);
+            }, 2200);
         });
 
         // Scroll Reveal Animations
@@ -773,6 +1705,323 @@
         document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(element => {
             observer.observe(element);
         });
+
+        // ========== INTERACTIVE EVENT MAP (LEAFLET) ==========
+        if(document.getElementById('map')) {
+            const locations = [
+                {
+                    name: "MotorPark România",
+                    coords: [44.7180, 26.6290],
+                    image: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=800&auto=format&fit=crop",
+                    desc: "Startul. Un test extrem pe circuit pentru a demonstra accelerația instananee și dinamica șasiului noului i3 pe viraje rapide."
+                },
+                {
+                    name: "Barajul Paltinu",
+                    coords: [45.2422, 25.7420],
+                    image: "https://images.unsplash.com/photo-1506501139174-099022df5260?q=80&w=800&auto=format&fit=crop",
+                    desc: "Eficiența prinde contur. Drumuri șerpuite unde regenerarea energiei la frânare și echilibrul perfect își spun cuvântul."
+                },
+                {
+                    name: "Bâlea Lac",
+                    coords: [45.6033, 24.6146],
+                    image: "https://images.unsplash.com/photo-1517409277028-c923f5b82260?q=80&w=800&auto=format&fit=crop",
+                    desc: "Altitudine extremă. Transfăgărășanul testează anduranța și sistemul de răcire al bateriei în condiții de urcare solicitantă."
+                },
+                {
+                    name: "BMW România (București)",
+                    coords: [44.4930, 26.0790],
+                    image: "https://images.unsplash.com/photo-1617469165786-8007eda3caa7?q=80&w=800&auto=format&fit=crop",
+                    desc: "Întoarcerea acasă. Sistemele de asistență inteligente și condusul autonom Level 3 se activează perfect în traficul urban."
+                }
+            ];
+
+            const map = L.map('map', { scrollWheelZoom: false }).setView([45.0, 25.5], 8);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap & CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+
+            const bmwIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: #00e5ff; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #000; box-shadow: 0 0 15px #00e5ff;"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+
+            const routePoints = locations.map(loc => loc.coords);
+            L.polyline(routePoints, {
+                color: '#0066b1',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '10, 10'
+            }).addTo(map);
+
+            const panelImg = document.getElementById('panel-image');
+            const panelTitle = document.getElementById('panel-title');
+            const panelDesc = document.getElementById('panel-desc');
+            const prevLocation = document.getElementById('prev-location');
+            const nextLocation = document.getElementById('next-location');
+            let activeIndex = 0;
+
+            const markers = locations.map((loc) => {
+                const marker = L.marker(loc.coords, { icon: bmwIcon }).addTo(map);
+                marker.on('click', () => {
+                    activeIndex = locations.findIndex(item => item.name === loc.name);
+                    updateLocation(activeIndex);
+                });
+                return marker;
+            });
+
+            function updateLocation(index) {
+                const loc = locations[index];
+                activeIndex = index;
+
+                panelImg.style.opacity = 0;
+                setTimeout(() => {
+                    panelImg.src = loc.image;
+                    panelTitle.innerText = loc.name;
+                    panelDesc.innerText = loc.desc;
+                    panelImg.style.opacity = 1;
+                }, 300);
+
+                map.flyTo(loc.coords, 10, {
+                    animate: true,
+                    duration: 1.5
+                });
+            }
+
+            prevLocation.addEventListener('click', () => {
+                activeIndex = (activeIndex - 1 + locations.length) % locations.length;
+                updateLocation(activeIndex);
+            });
+
+            nextLocation.addEventListener('click', () => {
+                activeIndex = (activeIndex + 1) % locations.length;
+                updateLocation(activeIndex);
+            });
+
+            updateLocation(0);
+        }
+
+        // ========== CONFIGURATOR LOGIC ==========
+        const openConfigBtn = document.getElementById('open-config-btn');
+        const closeConfigBtn = document.getElementById('close-modal-btn');
+        const configModal = document.getElementById('config-modal');
+        const formInputs = document.querySelectorAll('#car-config-form input');
+        const dynamicPriceDisplay = document.getElementById('dynamic-price');
+
+        const BASE_PRICE = 62436;
+
+        if (openConfigBtn) {
+            openConfigBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                configModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        if (closeConfigBtn) {
+            closeConfigBtn.addEventListener('click', () => {
+                configModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        }
+
+        if (configModal) {
+            configModal.addEventListener('click', (e) => {
+                if (e.target === configModal) {
+                    configModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        function calculateTotal() {
+            let total = BASE_PRICE;
+
+            const checkedRadios = document.querySelectorAll('#car-config-form input[type="radio"]:checked');
+            checkedRadios.forEach(radio => {
+                total += parseInt(radio.value);
+            });
+
+            const checkedBoxes = document.querySelectorAll('#car-config-form input[type="checkbox"]:checked');
+            checkedBoxes.forEach(box => {
+                total += parseInt(box.value);
+            });
+
+            const formattedPrice = new Intl.NumberFormat('de-DE').format(total) + ' €';
+            dynamicPriceDisplay.textContent = formattedPrice;
+        }
+
+        formInputs.forEach(input => {
+            input.addEventListener('change', calculateTotal);
+        });
+
+        calculateTotal();
     </script>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-logo">BMW Neue Klasse</div>
+            <div class="footer-info">
+                <p><strong>Contactează-ne:</strong></p>
+                <p>BMW România S.R.L.</p>
+                <p>Șoseaua București-Ploiești 42-44, Clădirea B</p>
+                <p>București, 013696, România</p>
+                <p>Telefon: +40 31 123 4567</p>
+                <p>Email: contact@bmw-neueklasse.ro</p>
+            </div>
+            <div class="footer-legal">
+                <p>&copy; 2026 BMW AG. Toate drepturile rezervate.</p>
+                <p>Valorile privind consumul și autonomia sunt provizorii.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="config-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configurează-ți Viitorul BMW i3</h2>
+                <button id="close-modal-btn" class="close-btn" aria-label="Close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="car-config-form">
+                    <div class="config-section">
+                        <h3>1. Culoare Exterior</h3>
+                        <div class="options-grid">
+                            <label class="option-card">
+                                <input type="radio" name="color" value="0" checked>
+                                <span class="color-swatch" style="background: #ffffff;"></span>
+                                <div class="option-info">
+                                    <h4>Alpine White</h4>
+                                    <span>Standard - 0 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card">
+                                <input type="radio" name="color" value="0">
+                                <span class="color-swatch" style="background: #111111;"></span>
+                                <div class="option-info">
+                                    <h4>Black Sapphire</h4>
+                                    <span>Standard - 0 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card premium">
+                                <input type="radio" name="color" value="1200">
+                                <span class="color-swatch" style="background: linear-gradient(135deg, #7c7c7c, #b0b0b0);"></span>
+                                <div class="option-info">
+                                    <h4>Frozen Pure Grey Metallic</h4>
+                                    <span>+ 1.200 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card premium">
+                                <input type="radio" name="color" value="1800">
+                                <span class="color-swatch" style="background: #002244;"></span>
+                                <div class="option-info">
+                                    <h4>Tanzanite Blue Metallic</h4>
+                                    <span>+ 1.800 €</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>2. Jante și Anvelope</h3>
+                        <div class="options-grid">
+                            <label class="option-card">
+                                <input type="radio" name="wheels" value="0" checked>
+                                <div class="option-info">
+                                    <h4>18" Aero Wheels (Style 858)</h4>
+                                    <span>Standard - 0 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card premium">
+                                <input type="radio" name="wheels" value="1100">
+                                <div class="option-info">
+                                    <h4>19" M Light Alloy (Style 861)</h4>
+                                    <span>+ 1.100 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card premium">
+                                <input type="radio" name="wheels" value="2200">
+                                <div class="option-info">
+                                    <h4>20" M Aerodynamic Bi-color</h4>
+                                    <span>+ 2.200 €</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>3. Tapițerie Interior</h3>
+                        <div class="options-grid">
+                            <label class="option-card">
+                                <input type="radio" name="interior" value="0" checked>
+                                <div class="option-info">
+                                    <h4>Sensatec Perforat Black</h4>
+                                    <span>Standard - 0 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card premium">
+                                <input type="radio" name="interior" value="2100">
+                                <div class="option-info">
+                                    <h4>Piele Merino Cognac</h4>
+                                    <span>+ 2.100 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card premium">
+                                <input type="radio" name="interior" value="3500">
+                                <div class="option-info">
+                                    <h4>Piele Integrală Tartufo Individual</h4>
+                                    <span>+ 3.500 €</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>4. Pachete Opționale</h3>
+                        <div class="options-grid">
+                            <label class="option-card checkbox-card">
+                                <input type="checkbox" name="package" value="3200">
+                                <div class="option-info">
+                                    <h4>Innovation Package</h4>
+                                    <span class="desc">BMW Panoramic Vision, Driving Assistant Professional, HUD.</span>
+                                    <span>+ 3.200 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card checkbox-card">
+                                <input type="checkbox" name="package" value="2500">
+                                <div class="option-info">
+                                    <h4>M Sport Pro Package</h4>
+                                    <span class="desc">Frâne M Sport, centuri M, suspensie adaptivă, Shadowline.</span>
+                                    <span>+ 2.500 €</span>
+                                </div>
+                            </label>
+                            <label class="option-card checkbox-card">
+                                <input type="checkbox" name="package" value="1800">
+                                <div class="option-info">
+                                    <h4>Bowers & Wilkins Diamond Surround</h4>
+                                    <span class="desc">Sistem audio premium 3D cu 18 difuzoare.</span>
+                                    <span>+ 1.800 €</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="price-calc">
+                    Preț Total Estimativ: <span id="dynamic-price">62.436 €</span>
+                </div>
+                <button class="btn-primary" style="margin: 0; padding: 15px 30px;">Finalizează Precomanda</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
 </body>
 </html>
