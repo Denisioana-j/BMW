@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noul BMW i3 - Mai multă bucurie de a conduce ca niciodată</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600;800&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --bmw-blue: #0066b1;
+            --electric-cyan: #00e5ff;
+            --deep-black: #030303;
+            --dark-grey: #0a0a0a;
+            --text-light: #f4f4f4;
+            --accent-glow: 0 0 30px rgba(0, 229, 255, 0.4);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--deep-black);
+            color: var(--text-light);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Syncopate', sans-serif;
+            text-transform: uppercase;
+        }
+
+        /* Typography & Utils */
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff, var(--electric-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(80px);
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .reveal-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .reveal-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ---------------- HERO SECTION & VISUAL HOOK ---------------- */
+        #hero {
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #151520 0%, var(--deep-black) 100%);
+        }
+
+        .dashboard-container {
+            position: relative;
+            z-index: 10;
+            width: 90vw;
+            max-width: 1000px;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+        }
+
+        /* Improved Analog Dials */
+        .analog-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            transition: all 2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .dial {
+            width: 280px;
+            height: 280px;
+            border: 12px solid #1a1a1a;
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle at top left, #2a2a2a, #050505);
+            box-shadow: 
+                0 0 0 2px #444, 
+                inset 0 0 40px #000, 
+                inset 0 0 10px rgba(255,255,255,0.1),
+                0 15px 30px rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dial::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px; height: 28px;
+            background: radial-gradient(circle, #ddd, #666);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.6);
+        }
+        
+        .dial-inner {
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .dial-label {
+            position: absolute;
+            bottom: 25%;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .needle {
+            width: 4px;
+            height: 125px;
+            background: linear-gradient(to top, #ff0000, #ff5500);
+            position: absolute;
+            bottom: 50%;
+            left: calc(50% - 2px);
+            transform-origin: bottom center;
+            transform: rotate(-130deg);
+            transition: transform 2.5s cubic-bezier(0.5, 0, 0.2, 1);
+            z-index: 4;
+            box-shadow: 0 0 15px #ff3300, 0 0 5px #ff0000;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .dial-marks {
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: repeating-conic-gradient(from -135deg, transparent 0deg 9deg, rgba(255,255,255,0.8) 9deg 10deg);
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
+            opacity: 0.6;
+        }
+        
+        .dial-marks-thick {
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: repeating-conic-gradient(from -135deg, transparent 0deg 28deg, #fff 28deg 30deg);
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
+        }
+
+        /* Digital HUD (Gen6) */
+        .digital-layer {
+            position: absolute;
+            width: 100%;
+            height: 85%;
+            background: rgba(0, 30, 60, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            border: 1px solid rgba(0, 229, 255, 0.4);
+            box-shadow: inset 0 0 80px rgba(0, 229, 255, 0.15), 0 0 100px rgba(0, 229, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.6) translateZ(-300px);
+            transition: all 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow: hidden;
+        }
+
+        .digital-layer::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.5), transparent);
+            transform: skewX(-25deg);
+            animation: digital-sweep 3s infinite;
+        }
+
+        @keyframes digital-sweep {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .digital-title {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(0,229,255,0.4);
+        }
+
+        .digital-subtitle {
+            font-size: 1.3rem;
+            letter-spacing: 8px;
+            color: var(--electric-cyan);
+            font-weight: 600;
+        }
+
+        /* Start Button */
+        #start-btn {
+            position: absolute;
+            bottom: 8%;
+            padding: 22px 60px;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px);
+            border: 2px solid var(--electric-cyan);
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: var(--accent-glow);
+            z-index: 20;
+            text-transform: uppercase;
+        }
+
+        #start-btn:hover {
+            background: var(--electric-cyan);
+            color: var(--deep-black);
+            box-shadow: 0 0 60px var(--electric-cyan);
+            transform: scale(1.05);
+        }
+
+        /* Animation States */
+        body.engine-started .needle {
+            transform: rotate(130deg); /* Rev to max */
+        }
+        body.engine-started .dial {
+            box-shadow: 0 0 0 2px #444, inset 0 0 60px rgba(255,50,0,0.3), 0 15px 30px rgba(0,0,0,0.8);
+        }
+
+        body.morphing .analog-layer {
+            opacity: 0;
+            transform: scale(2.2) translateZ(150px);
+            filter: blur(30px);
+        }
+
+        body.morphing .digital-layer {
+            opacity: 1;
+            transform: scale(1) translateZ(0);
+        }
+
+        body.morphing #start-btn {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(60px);
+        }
+
+        /* ---------------- SECTIONS ---------------- */
+        section {
+            padding: 150px 5vw;
+            position: relative;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 3.5rem;
+            margin-bottom: 40px;
+            line-height: 1.1;
+        }
+
+        .section-text {
+            font-size: 1.25rem;
+            line-height: 1.9;
+            color: #d0d0d0;
+            margin-bottom: 50px;
+            font-weight: 200;
+        }
+
+        /* Parallax Backgrounds */
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.35;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--deep-black) 45%, transparent);
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Stat Boxes */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 4px solid var(--electric-cyan);
+            padding: 40px 30px;
+            backdrop-filter: blur(15px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-box:hover::before {
+            left: 100%;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-15px);
+            border-top-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .stat-number {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--electric-cyan);
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(0,229,255,0.3);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        /* Specific Sections */
+        #freedom { background: var(--dark-grey); }
+        #freedom .parallax-bg { background-image: url('https://images.unsplash.com/photo-1660212002581-2bfaec2bba97?q=80&w=2000&auto=format&fit=crop'); }
+
+        #brain {
+            background: radial-gradient(circle at top right, #001224, var(--deep-black));
+            border-top: 1px solid rgba(0, 229, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+        }
+
+        #performance .parallax-bg { 
+            background-image: url('https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2000&auto=format&fit=crop'); 
+        }
+        #performance .overlay {
+            background: linear-gradient(270deg, var(--deep-black) 45%, transparent);
+        }
+        
+        #design { 
+            background: var(--dark-grey); 
+            padding-bottom: 80px;
+        }
+        
+        .image-card {
+            width: 100%;
+            height: 550px;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.5s ease;
+        }
+        
+        .image-card:hover {
+            transform: scale(1.02);
+        }
+
+        /* NEW SECTIONS: SUSTAINABILITY & GALLERY */
+        #sustainability {
+            background: linear-gradient(135deg, var(--deep-black) 0%, #031510 100%);
+            border-top: 1px solid rgba(0, 255, 150, 0.1);
+        }
+
+        #sustainability .gradient-text {
+            background: linear-gradient(135deg, #ffffff, #00ff9d);
+            -webkit-background-clip: text;
+        }
+
+        #gallery {
+            background: var(--deep-black);
+            padding-top: 50px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), filter 0.8s;
+            filter: grayscale(40%) brightness(0.8);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+            filter: grayscale(0%) brightness(1);
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            padding: 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            color: #fff;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.2rem;
+        }
+
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+
+
+        /* CTA Section */
+        #cta {
+            text-align: center;
+            padding: 200px 20px;
+            background: radial-gradient(circle at bottom, #001f3f 0%, var(--deep-black) 80%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #cta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 80%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--electric-cyan), transparent);
+        }
+
+        .price {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 5rem;
+            margin: 40px 0;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255,255,255,0.2);
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 25px 70px;
+            background: var(--text-light);
+            color: var(--deep-black);
+            text-decoration: none;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            border-radius: 5px;
+            text-transform: uppercase;
+            transition: all 0.4s;
+            box-shadow: 0 15px 40px rgba(255,255,255,0.15);
+            letter-spacing: 2px;
+        }
+
+        .btn-primary:hover {
+            background: var(--electric-cyan);
+            box-shadow: 0 15px 50px rgba(0,229,255,0.5);
+            transform: translateY(-5px);
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 { grid-template-columns: 1fr; gap: 50px; }
+            .digital-title { font-size: 2.5rem; }
+            .dial { width: 180px; height: 180px; border-width: 8px; }
+            .needle { height: 80px; }
+            .section-title { font-size: 2.5rem; }
+            .gallery-grid { grid-template-columns: 1fr; }
+            .overlay, #performance .overlay { background: linear-gradient(180deg, var(--deep-black) 60%, transparent); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO / VISUAL HOOK -->
+    <section id="hero">
+        <div class="dashboard-container">
+            <!-- Istorie / Tradiție -->
+            <div class="analog-layer">
+                <div class="dial">
+                    <div class="dial-inner">
+                        <div class="dial-marks"></div>
+                        <div class="dial-marks-thick"></div>
+                        <div class="dial-label">km/h</div>
+                    </div>
+                    <div class="needle"></div>
+                </div>
+                <div class="dial">
+                    <div class="dial-inner">
+                        <div class="dial-marks"></div>
+                        <div class="dial-marks-thick"></div>
+                        <div class="dial-label">RPM x1000</div>
+                    </div>
+                    <div class="needle"></div>
+                </div>
+            </div>
+
+            <!-- Viitorul Electric -->
+            <div class="digital-layer">
+                <h1 class="digital-title gradient-text">Enjoy more BMW than ever.</h1>
+                <p class="digital-subtitle">BMW PANORAMIC VISION INITIATED</p>
+            </div>
+        </div>
+        <button id="start-btn">START ENGINE</button>
+    </section>
+
+    <!-- FREEDOM / AUTONOMY -->
+    <section id="freedom">
+        <div class="parallax-bg"></div>
+        <div class="overlay"></div>
+        <div class="content grid-2">
+            <div class="reveal-left">
+                <h2 class="section-title gradient-text">Libertate Fără Limite</h2>
+                <p class="section-text">O nouă eră a mobilității electrice. Uită de anxietatea autonomiei. Noul BMW i3 este proiectat cu arhitectura revoluționară pe 800V, permițându-ți să străbați continentul fără întreruperi. O pauză de cafea este tot ce ai nevoie pentru a-ți continua călătoria cu forțe proaspete.</p>
+                
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-number">906 <span style="font-size:1.5rem">km</span></div>
+                        <div class="stat-label">Autonomie Maximă (WLTP)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">10 <span style="font-size:1.5rem">min</span></div>
+                        <div class="stat-label">+400 km Încărcați (800V)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="reveal-right">
+                <!-- Empty for grid layout, background handles the visual -->
+            </div>
+        </div>
+    </section>
+
+    <!-- DIGITAL BRAIN -->
+    <section id="brain">
+        <div class="content grid-2" style="max-width: 1200px;">
+            <div class="reveal-left">
+                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2000&auto=format&fit=crop" alt="Digital Dashboard" class="image-card">
+            </div>
+            <div class="reveal-right">
+                <h2 class="section-title gradient-text">Un Super-Computer pe Roți</h2>
+                <p class="section-text">Acesta nu este doar un automobil. Este un ecosistem digital viu. Conceptul suprem <strong>„Heart of Joy”</strong> integrează 4 computere centrale ultrasincronizate care procesează fiecare dinamică a vehiculului de 10 ori mai rapid decât înainte.</p>
+                <ul class="section-text" style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 25px; display: flex; align-items: flex-start;">
+                        <span style="color:var(--electric-cyan); font-size: 1.5rem; margin-right: 15px;">◆</span>
+                        <div><strong style="color:#fff; display:block; margin-bottom:5px;">Nou BMW iDrive cu OS X</strong> Interfață intuitivă, inteligență artificială adaptivă.</div>
+                    </li>
+                    <li style="margin-bottom: 25px; display: flex; align-items: flex-start;">
+                        <span style="color:var(--electric-cyan); font-size: 1.5rem; margin-right: 15px;">◆</span>
+                        <div><strong style="color:#fff; display:block; margin-bottom:5px;">BMW Panoramic Vision</strong> Informațiile esențiale proiectate pe toată lățimea bazei parbrizului.</div>
+                    </li>
+                    <li style="display: flex; align-items: flex-start;">
+                        <span style="color:var(--electric-cyan); font-size: 1.5rem; margin-right: 15px;">◆</span>
+                        <div><strong style="color:#fff; display:block; margin-bottom:5px;">MyBMW App & Smart Tech</strong> Conectivitate absolută cu viața ta digitală.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- PERFORMANCE -->
+    <section id="performance">
+        <div class="parallax-bg"></div>
+        <div class="overlay"></div>
+        <div class="content grid-2">
+            <div></div> <!-- Space for overlay -->
+            <div class="reveal-right">
+                <h2 class="section-title gradient-text">Mai Multă <em>Fahrfreude</em> Ca Niciodată</h2>
+                <p class="section-text">Tradiția sportivă BMW, electrificată complet. Sistemul de propulsie Gen6 livrează o putere instantanee. Cu tracțiunea integrală inteligentă xDrive50 și suspensia adaptivă M, fiecare curbă devine o declarație de supremație absolută pe asfalt.</p>
+                
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-number">469 <span style="font-size:1.5rem">CP</span></div>
+                        <div class="stat-label">Putere Pură (xDrive50)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">4.7 <span style="font-size:1.5rem">s</span></div>
+                        <div class="stat-label">0 - 100 km/h</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: SUSTAINABILITY -->
+    <section id="sustainability">
+        <div class="content grid-2" style="max-width: 1200px;">
+            <div class="reveal-left">
+                <h2 class="section-title gradient-text" style="color: #00ff9d;">Pionierat în Sustenabilitate</h2>
+                <p class="section-text">Performanța întâlnește responsabilitatea. Noul i3 reprezintă viziunea BMW circulară. Folosim materiale secundare reciclate pentru interior, evităm pământurile rare pentru motoarele electrice și fabricăm folosind energie 100% verde.</p>
+                <p class="section-text" style="font-weight: 600; color: #fff;">Viitorul este luxul care protejează planeta.</p>
+            </div>
+            <div class="reveal-right">
+                <img src="https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?q=80&w=2000&auto=format&fit=crop" alt="Eco Sustainability" class="image-card" style="height: 400px;">
+            </div>
+        </div>
+    </section>
+
+    <!-- DESIGN -->
+    <section id="design">
+        <div class="content">
+            <h2 class="section-title gradient-text reveal" style="text-align: center; margin-bottom: 90px;">Design. True Sporty Sedan.</h2>
+            
+            <div class="grid-2">
+                <div class="reveal-left">
+                    <h3 style="color: var(--electric-cyan); margin-bottom: 25px; font-size: 1.5rem;">Exterior Magnetizant</h3>
+                    <p class="section-text">O capodoperă a proporțiilor. Noul i3 redefinește silueta de sedan sportiv veritabil. Grila frontală iluminată (Illuminated Kidney) și liniile aerodinamice ascuțite impun respect și admirație pe orice șosea. Aerodinamica optimizată maximizează autonomia.</p>
+                    <img src="https://images.unsplash.com/photo-1555626906-fcf10d6851b4?q=80&w=2000&auto=format&fit=crop" alt="BMW Exterior" class="image-card" style="height: 400px;">
+                </div>
+                <div class="reveal-right" style="transition-delay: 0.2s;">
+                    <h3 style="color: var(--electric-cyan); margin-bottom: 25px; font-size: 1.5rem;">Interior Orientat Către Tine</h3>
+                    <p class="section-text">Deși infuzat cu ecrane digitale masive și lumini ambientale dinamice interactive, interiorul păstrează ADN-ul pur BMW: orientarea impecabilă către șofer. Ești mereu în centrul acțiunii, controlând viitorul dintr-o cabină premium.</p>
+                    <img src="https://images.unsplash.com/photo-1617469165786-8007eda3caa7?q=80&w=2000&auto=format&fit=crop" alt="BMW Interior" class="image-card" style="height: 400px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: DYNAMIC GALLERY -->
+    <section id="gallery">
+        <h2 class="section-title gradient-text reveal" style="text-align: center; margin-bottom: 60px; font-size: 2.5rem;">Viziunea în Detaliu</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item reveal">
+                <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1000&auto=format&fit=crop" alt="Detail 1">
+                <div class="gallery-caption">Faruri LED Adaptive</div>
+            </div>
+            <div class="gallery-item reveal" style="transition-delay: 0.2s;">
+                <img src="https://images.unsplash.com/photo-1619551734325-81aaf323686c?q=80&w=1000&auto=format&fit=crop" alt="Detail 2">
+                <div class="gallery-caption">Încărcare High-Power</div>
+            </div>
+            <div class="gallery-item reveal" style="transition-delay: 0.4s;">
+                <img src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=1000&auto=format&fit=crop" alt="Detail 3">
+                <div class="gallery-caption">Jante Aerodinamice M</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA / PRICING -->
+    <section id="cta" class="reveal">
+        <h2 class="section-title">Viitorul Începe Aici.</h2>
+        <p class="section-text" style="max-width: 700px; margin: 0 auto; color: #fff;">Tehnologie de ultimă generație. Performanță legendară. O experiență fără compromisuri, creată pentru cei care conduc schimbarea.</p>
+        <div class="price">De la 62.436 €</div>
+        <a href="#" class="btn-primary" onclick="alert('Redirecționare către formularul de rezervare...'); return false;">Fii Printre Primii. Rezervă Acum.</a>
+        <p style="margin-top: 40px; color: #888; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase;">Lansare oficială: Octombrie 2026</p>
+    </section>
+
+    <script>
+        // Start Engine Logic
+        const startBtn = document.getElementById('start-btn');
+        
+        startBtn.addEventListener('click', () => {
+            // 1. Rev the analog engine
+            document.body.classList.add('engine-started');
+            startBtn.innerHTML = "SYSTEM BOOTING...";
+            startBtn.style.color = "var(--electric-cyan)";
+            startBtn.style.borderColor = "var(--electric-cyan)";
+            startBtn.style.background = "rgba(0, 229, 255, 0.1)";
+            
+            // 2. Morph to Digital after max rev
+            setTimeout(() => {
+                document.body.classList.add('morphing');
+            }, 1800);
+            
+            // 3. Scroll to freedom section to begin the story
+            setTimeout(() => {
+                document.getElementById('freedom').scrollIntoView({ behavior: 'smooth' });
+            }, 4500);
+        });
+
+        // Scroll Reveal Animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // Reveal only once
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>
