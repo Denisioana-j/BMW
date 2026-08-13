@@ -1170,9 +1170,64 @@
             font-weight: bold;
         }
 
+        .confirmation-card {
+            border: 1px solid rgba(0, 229, 255, 0.4) !important;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2) !important;
+        }
+
+        @media (max-width: 992px) {
+            .energy-comparison-container {
+                max-width: 100%;
+                margin-top: 30px;
+            }
+        }
+
         @media (max-width: 768px) {
-            .modal-footer { flex-direction: column; gap: 20px; text-align: center; }
-            .options-grid { grid-template-columns: 1fr; }
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+                border-radius: 12px;
+            }
+            .modal-header {
+                padding: 18px 20px;
+            }
+            .modal-header h2 {
+                font-size: 1.2rem;
+            }
+            .modal-body {
+                padding: 20px 15px;
+            }
+            .options-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px;
+            }
+            .modal-footer {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+                text-align: center;
+            }
+            .price-calc {
+                font-size: 1.2rem;
+            }
+            .modal-footer .btn-primary {
+                width: 100%;
+            }
+            .energy-card {
+                padding: 16px;
+            }
+            .price-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-header h2 {
+                font-size: 1rem;
+            }
+            #unique-booking-code {
+                font-size: 1.2rem !important;
+            }
         }
 
         /* ========== NAVIGATION BAR ========== */
@@ -2061,39 +2116,24 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // ========== CONFIGURATOR LOGIC (BULLETPROOF) ==========
             const configModal = document.getElementById('config-modal');
+            const confirmationModal = document.getElementById('confirmation-modal');
+            const bookingCodeElem = document.getElementById('unique-booking-code');
             const dynamicPriceDisplay = document.getElementById('dynamic-price');
+            const configForm = document.getElementById('car-config-form');
             const BASE_PRICE = 62436;
 
-            if (!configModal) {
-                console.error("Eroare: Nu am găsit <div id='config-modal'> în HTML.");
-                return;
+            function generateBookingCode() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let code = 'BMW-800V-';
+                for (let i = 0; i < 6; i++) {
+                    code += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return code;
             }
 
-            document.addEventListener('click', (e) => {
-                const openBtn = e.target.closest('#open-config-btn');
-                if (openBtn) {
-                    e.preventDefault();
-                    configModal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                    calculateTotal();
-                }
-
-                const closeBtn = e.target.closest('#close-modal-btn');
-                if (closeBtn) {
-                    configModal.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-
-                if (e.target === configModal) {
-                    configModal.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-
             function calculateTotal() {
-                if (!dynamicPriceDisplay) return;
+                if (!dynamicPriceDisplay || !configModal) return;
 
                 let total = BASE_PRICE;
 
@@ -2111,10 +2151,55 @@
                 dynamicPriceDisplay.textContent = formattedPrice;
             }
 
-            const configForm = document.getElementById('car-config-form');
             if (configForm) {
                 configForm.addEventListener('change', calculateTotal);
             }
+
+            document.addEventListener('click', (e) => {
+                if (confirmationModal && confirmationModal.classList.contains('active')) {
+                    confirmationModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+
+                const openBtn = e.target.closest('#open-config-btn');
+                if (openBtn && configModal) {
+                    e.preventDefault();
+                    configModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    calculateTotal();
+                }
+
+                const closeBtn = e.target.closest('#close-modal-btn');
+                if (closeBtn && configModal) {
+                    configModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+
+                if (e.target === configModal) {
+                    configModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+
+                const submitBtn = e.target.closest('.modal-footer .btn-primary');
+                if (submitBtn && configModal && configModal.classList.contains('active')) {
+                    e.preventDefault();
+
+                    const uniqueCode = generateBookingCode();
+                    if (bookingCodeElem) {
+                        bookingCodeElem.textContent = uniqueCode;
+                    }
+
+                    configModal.classList.remove('active');
+                    if (confirmationModal) {
+                        document.body.style.overflow = 'hidden';
+                        setTimeout(() => {
+                            confirmationModal.classList.add('active');
+                        }, 200);
+                    }
+                }
+            });
 
             calculateTotal();
         });
@@ -2279,7 +2364,22 @@
             </div>
         </div>
     </div>
-</body>
-</html> 
+
+    <div id="confirmation-modal" class="modal-overlay">
+        <div class="modal-content confirmation-card" style="max-width: 500px; text-align: center; padding: 40px 30px;">
+            <div class="success-icon" style="font-size: 3rem; color: #00e5ff; margin-bottom: 15px;">✓</div>
+            <h2 style="color: #fff; font-size: 1.6rem; margin-bottom: 10px;">Rezervare Înregistrată</h2>
+            <p style="color: #aaa; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px;">
+                Acesta este codul tău unic de identificare. Contactează un dealer autorizat BMW pentru mai multe informații și finalizarea comenzii.
+            </p>
+            
+            <div class="code-box" style="background: rgba(0, 229, 255, 0.08); border: 1px dashed #00e5ff; padding: 15px 20px; border-radius: 8px; margin-bottom: 30px;">
+                <span style="display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px;">Cod Configurație</span>
+                <strong id="unique-booking-code" style="font-size: 1.6rem; color: #00e5ff; font-family: 'Syncopate', sans-serif; letter-spacing: 2px;">BMW-800V-000000</strong>
+            </div>
+
+            <p style="font-size: 0.8rem; color: #666;">* Atinge ecranul oriunde pentru a te întoarce la pagina principală.</p>
+        </div>
+    </div>
 </body>
 </html>
